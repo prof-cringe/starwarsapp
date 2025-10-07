@@ -11,19 +11,5 @@ namespace starwarsapp.Helpers
             return int.TryParse(m.Groups["id"].Value, out var id) ? id : 0;
         }
 
-        public static string GetImageUrl(string type, int id)
-        {
-            var segment = type switch
-            {
-                "people" => "characters",
-                "planets" => "planets",
-                "species" => "species",
-                "starships" => "starships",
-                "vehicles" => "vehicles",
-                _ => "characters"
-            };
-
-            return $"https://starwars-visualguide.com/assets/img/{segment}/{id}";
-        }
     }
 }
