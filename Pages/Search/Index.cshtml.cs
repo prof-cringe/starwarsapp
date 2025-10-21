@@ -7,7 +7,7 @@ using starwarsapp.Services;
 
 namespace starwarsapp.Pages.Search
 {
-    
+
     public class IndexModel : PageModel
     {
         private readonly ISwapiClient _api;
@@ -19,6 +19,9 @@ namespace starwarsapp.Pages.Search
             _images = images;
         }
 
+        [BindProperty(SupportsGet = true)] public string? Q { get; set; }
+        [BindProperty(SupportsGet = true)] public string Type { get; set; } = "all";
+
         public record Card(
             string Type,
             int id,
@@ -27,77 +30,91 @@ namespace starwarsapp.Pages.Search
             string Img
         );
 
-        public List<Card> People { get; set; } = new();
-        public List<Card> Planets { get; set; } = new();
-        public List<Card> Species { get; set; } = new();
-        public List<Card> Others { get; set; } = new(); //Straships e Vehicles
-
+        public List<Card> Results { get; set; } = new();
 
         public async Task OnGetAsync()
         {
-            var p1 = await _api.GetPeopleAsync( 1 );
-            foreach (var p in p1.Results.Take(8))
+            if (string.IsNullOrWhiteSpace(Q)) return;
+
+            async Task addPeople()
             {
-                var id = SwapiImageHelper.ExtractId(p.Url);
-                var img = await _images.GetImageUrlAsync("people", p.Name) ?? "/img/placeholder.png";
-                People.Add(new(
-                    "people",
-                    id,
-                    p.Name,
-                    $"{p.BirthYear} - {p.Gender}",
-                    img));
+                var r = await _api.GetPeopleAsync(1, Q);
+                foreach (var p in r.Results)
+                {
+                    var id = SwapiImageHelper.ExtractId(p.Url);
+                    var img = await _images.GetImageUrlAsync("people", p.Name) ?? "/img/placeholder.png";
+                    Results.Add(new("people", id, p.Name, $"{p.BirthYear} - {p.Gender}", img));
+                }
             }
 
-            var pl1 = await _api.GetPlanetAsync(1);
-            foreach (var p in pl1.Results.Take(8))
+            async Task addPlanets()
             {
-                var id = SwapiImageHelper.ExtractId(p.Url);
-                var img = await _images.GetImageUrlAsync("planets", p.Name) ?? "/img/placeholder.png";
-                Planets.Add(new(
-                    "planets",
-                    id,
-                    p.Name,
-                    $"{p.Climate} - {p.Population}",
-                    img));
+                var r = await _api.GetPlanetAsync(1, Q);
+                foreach (var p in r.Results)
+                {
+                    var id = SwapiImageHelper.ExtractId(p.Url);
+                    var img = await _images.GetImageUrlAsync("planets", p.Name) ?? "/img/placeholder.png";
+                    Results.Add(new("planets", id, p.Name, $"{p.Climate} - {p.Population}", img));
+                }
             }
 
-            var s1 = await _api.GetSpeciesAsync(1);
-            foreach (var p in s1.Results.Take(8))
+            async Task addSpecies()
             {
-                var id = SwapiImageHelper.ExtractId(p.Url);
-                var img = await _images.GetImageUrlAsync("species", p.Name) ?? "/img/placeholder.png";
-                Species.Add(new(
-                    "species",
-                    id,
-                    p.Name,
-                    $"{p.Classification} - {p.Language}",
-                    img));
+                var r = await _api.GetSpeciesAsync(1, Q);
+                foreach (var p in r.Results)
+                {
+                    var id = SwapiImageHelper.ExtractId(p.Url);
+                    var img = await _images.GetImageUrlAsync("species", p.Name) ?? "/img/placeholder.png";
+                    Results.Add(new("species", id, p.Name, $"{p.Classification} - {p.Language}", img));
+                }
             }
 
-            var st1 = await _api.GetStarshipAsync(1);
-            foreach (var p in st1.Results.Take(4))
+            async Task addStarships()
             {
-                var id = SwapiImageHelper.ExtractId(p.Url);
-                var img = await _images.GetImageUrlAsync("starships", p.Name) ?? "/img/placeholder.png";
-                Others.Add(new(
-                    "starships",
-                    id,
-                    p.Name,
-                    $"{p.Model} - {p.Manufacturer}",
-                    img));
+                var r = await _api.GetStarshipAsync(1, Q);
+                foreach (var p in r.Results)
+                {
+                    var id = SwapiImageHelper.ExtractId(p.Url);
+                    var img = await _images.GetImageUrlAsync("starships", p.Name) ?? "/img/placeholder.png";
+                    Results.Add(new("starships", id, p.Name, $"{p.Model} - {p.Manufacturer}", img));
+                }
             }
 
-            var v1 = await _api.GetVehicleAsync(1);
-            foreach (var p in v1.Results.Take(4))
+            async Task addVehicles()
             {
-                var id = SwapiImageHelper.ExtractId(p.Url);
-                var img = await _images.GetImageUrlAsync("vehicles", p.Name) ?? "/img/placeholder.png";
-                Others.Add(new(
-                    "vehicles",
-                    id,
-                    p.Name,
-                    $"{p.Model} - {p.Manufacturer}",
-                    img));
+                var r = await _api.GetVehicleAsync(1, Q);
+                foreach (var p in r.Results)
+                {
+                    var id = SwapiImageHelper.ExtractId(p.Url);
+                    var img = await _images.GetImageUrlAsync("vehicles", p.Name) ?? "/img/placeholder.png";
+                    Results.Add(new("vehicles", id, p.Name, $"{p.Model} - {p.Manufacturer}", img));
+                }
+            }
+
+            switch (Type.ToLowerInvariant())
+            {
+                case "people":
+                    await addPeople();
+                    break;
+                case "planets":
+                    await addPlanets();
+                    break;
+                case "species":
+                    await addSpecies();
+                    break;
+                case "starships":
+                    await addStarships();
+                    break;
+                case "vehicles":
+                    await addVehicles();
+                    break;
+                default:
+                    await Task.WhenAll(addPeople(),
+                                        addPlanets(),
+                                        addSpecies(),
+                                        addStarships(),
+                                        addVehicles());
+                    break;
             }
         }
     }
