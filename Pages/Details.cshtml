@@ -1,4 +1,30 @@
-﻿@page
+﻿@page "/details/{type}/{id:int}"
 @model starwarsapp.Pages.DetailsModel
 @{
+    ViewData["Title"] = Model.Title;
 }
+
+<div class="row g-4">
+    <div class="col-12 col-lg-5">
+        <div class="card card-sw p-3">
+            <img class="img-fit" style="height: 320px;" src="@Model.ImageUrl" alt="@Model.Title"
+                onerror="this.onerror=null;this.src='/img/placeholder.svg';" />
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-7">
+        <div class="card card-sw p-4">
+            <h2 class="mb-3">@Model.Title</h2>
+            <dl class="row">
+                @foreach (var kv in Model.Fields)
+                {
+                    <dt class="col-sm-4 text-secondary">@kv.Key</dt>
+                    <dd class="col-sm-8">@kv.Value</dd>
+                }
+            </dl>
+            <a class="btn btn-outline-light mt-3" href="javascript:history.back()">Voltar</a>
+        </div>
+    </div>
+</div>
+
+

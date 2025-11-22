@@ -20,3 +20,49 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+/* Fundo em "galáxia" suave */
+.bg-gradient {
+    background: radial-gradient(1200px 600px at 10% 0%, #1b1b3a 0, #0b0b1a 40%, #05050d 100%);
+    color: #f5f5f7;
+}
+
+/* Cards temáticos */
+.card-sw {
+    background: #111324;
+    border: 1px solid rgba(255,255,255,.06);
+    color: #e9e9ee;
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+
+    .card-sw:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+
+    .card-sw .title {
+        color: #fff;
+        font-weight: 700;
+    }
+
+.badge-cat {
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.2);
+    color: #d9ddff;
+}
+
+.img-fit {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: .5rem;
+}
+
+/* Ajustes gerais */
+a, .btn-link {
+    text-decoration: none;
+}
+
+.text-secondary {
+    color: #a8a8b8 !important;
+}
